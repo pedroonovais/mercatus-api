@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mercatus.mercatus_api.repository.CharacterRepository;
+import com.mercatus.mercatus_api.repository.ItemRepository;
+import com.mercatus.mercatus_api.model.Item;
 import com.mercatus.mercatus_api.model.Character;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,20 +30,24 @@ import org.springframework.http.HttpStatus;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/characters")
+@RequestMapping("/items")
 @Slf4j
-public class CharacterController {
+public class ItemController {
     
     @Autowired
-    private CharacterRepository repository;
+    private ItemRepository repository;
+
+
+    @Autowired
+    private CharacterRepository characterRepository;
 
     @GetMapping
     @Operation(
-        summary = "Listar todas os personagens", 
-        description = "Retorna todas os personagens cadastradas",
-        tags = {"Character"}
+        summary = "Listar todas os itens", 
+        description = "Retorna todas os itens cadastrados",
+        tags = {"Item"}
     )
-    public List<Character> index() {
+    public List<Item> index() {
         return repository.findAll();
     }
 
@@ -52,37 +58,50 @@ public class CharacterController {
             responseCode = "400"
         )
     )
-    public Character create(@RequestBody @Valid Character character) {
-        log.info("Cadastrando personagem " + character.getName());
-        return repository.save(character);
+    public Item create(@RequestBody @Valid Item item) {
+
+        var owner = item.getOwner();
+
+        item.setOwner(getCharacter(owner.getId()));
+
+        log.info("Cadastrando item " + item.getName());
+        return repository.save(item);
     }
 
     @GetMapping("{id}")
-    public Character get(@PathVariable Long id) {
-        log.info("Buscando personagem " + id);
-        return getCharacter(id);
+    public Item get(@PathVariable Long id) {
+        log.info("Buscando item " + id);
+        return getItem(id);
     }
 
     @DeleteMapping("{id}")
     @CacheEvict(allEntries = true)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void destroy(@PathVariable Long id) {
-        log.info("Apagando personagem " + id);
-        repository.delete(getCharacter(id));
+        log.info("Apagando item " + id);
+        repository.delete(getItem(id));
     }
 
     @PutMapping("{id}")
     @CacheEvict(allEntries = true)
-    public Character update(@PathVariable Long id, @RequestBody Character character) {
-        log.info("Atualizando personagem " + id + " " + character);	
+    public Item update(@PathVariable Long id, @RequestBody Item item) {
+        log.info("Atualizando item " + id + " " + item);	
 
-        getCharacter(id);
-        character.setId(id);
-        return repository.save(character);
+        getItem(id);
+        item.setId(id);
+        return repository.save(item);
+    }
+
+    private Item getItem(Long id) {
+        return repository
+                .findById(id)
+                .orElseThrow(
+                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Item " + id + " não encontrado")
+                );
     }
 
     private Character getCharacter(Long id) {
-        return repository
+        return characterRepository
                 .findById(id)
                 .orElseThrow(
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Personagem " + id + " não encontrado")
