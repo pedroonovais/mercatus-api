@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mercatus.mercatus_api.repository.CharacterRepository;
+import com.mercatus.mercatus_api.specfication.CharacterSpecification;
 import com.mercatus.mercatus_api.model.Character;
+import com.mercatus.mercatus_api.model.CharacterFilter;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +45,9 @@ public class CharacterController {
         description = "Retorna todas os personagens cadastradas",
         tags = {"Character"}
     )
-    public List<Character> index() {
-        return repository.findAll();
+    public Page<Character> index(CharacterFilter filter, @PageableDefault(size = 10) Pageable pageable) {
+        return repository.findAll(CharacterSpecification.withFilters(filter), pageable);
+
     }
 
     @PostMapping
