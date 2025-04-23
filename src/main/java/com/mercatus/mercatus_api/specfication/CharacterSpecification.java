@@ -33,6 +33,9 @@ public abstract class CharacterSpecification {
                 if (!matchingTypes.isEmpty()) {
                     predicates.add(root.get("characterType").in(matchingTypes));
                 }
+                else{
+                    predicates.add(cb.isNull(root.get("characterType")));
+                }
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

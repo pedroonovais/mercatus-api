@@ -12,7 +12,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.mercatus.mercatus_api.repository.CharacterRepository;
 import com.mercatus.mercatus_api.repository.ItemRepository;
+import com.mercatus.mercatus_api.specfication.ItemSpecification;
 import com.mercatus.mercatus_api.model.Item;
+import com.mercatus.mercatus_api.model.ItemFilter;
 import com.mercatus.mercatus_api.model.Character;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,10 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +40,6 @@ public class ItemController {
     @Autowired
     private ItemRepository repository;
 
-
     @Autowired
     private CharacterRepository characterRepository;
 
@@ -47,8 +49,8 @@ public class ItemController {
         description = "Retorna todas os itens cadastrados",
         tags = {"Item"}
     )
-    public List<Item> index() {
-        return repository.findAll();
+    public Page<Item> index(ItemFilter filter, @PageableDefault(size = 10) Pageable pageable) {
+        return repository.findAll(ItemSpecification.withFilters(filter), pageable);
     }
 
     @PostMapping

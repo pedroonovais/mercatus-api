@@ -47,7 +47,6 @@ public class CharacterController {
     )
     public Page<Character> index(CharacterFilter filter, @PageableDefault(size = 10) Pageable pageable) {
         return repository.findAll(CharacterSpecification.withFilters(filter), pageable);
-
     }
 
     @PostMapping
