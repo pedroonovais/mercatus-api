@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,8 @@ public class Item {
     @NotBlank(message = "nome obrigatorio")
     private String name;
 
-    @NotBlank(message = "tipo do item obrigatorio")
-    private String type;
+    @NotNull(message = "tipo do item obrigatorio")
+    private ItemType type;
 
     @NotBlank(message = "raridade do item obrigatoria")
     private String rarity;

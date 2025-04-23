@@ -59,10 +59,11 @@ public class ItemController {
         )
     )
     public Item create(@RequestBody @Valid Item item) {
-
         var owner = item.getOwner();
 
-        item.setOwner(getCharacter(owner.getId()));
+        if (owner != null) {
+            item.setOwner(getCharacter(owner.getId()));
+        }
 
         log.info("Cadastrando item " + item.getName());
         return repository.save(item);
